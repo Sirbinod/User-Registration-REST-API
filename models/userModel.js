@@ -1,43 +1,44 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const Schema = mongoose.Schema;
-const userSchema = new Schema({
-    firstname: {
-        type: String,
-        required: true
 
-    },
-    lastname: {
+const userSchema = mongoose.Schema({
+    name:{
         type: String,
-        required: true
-        
+        required: true,
+        minlength:3
     },
     email: {
         type: String,
         required: true,
-        unique: true
+        unique:[true, "email id already present"],
+        validator(value){
+            if (!validator.isEmail(value)){
+                throw new Error("Invalid Email")
+            }
+        }
     },
-    Phone: {
+    phone:{
         type: Number,
         required: true,
-        unique: true
-        
+        min: 10,
+        unique: [true, "phone number already exit"]
     },
     password: {
         type: String,
         required: true
-        
-    },
-    salt: String
+    }
 });
-userSchema.pre('save', function(next){
-    bcrypt.genSalt(10, (err, salt) =>{
-        bcrypt.hash(this.password, salt, (err, hash)=>{
-            this.password = hash;
-            this.salt = salt;
-            next();
-        });
-    });
-});
-const User = mongoose.model('Poi', userSchema);
+userSchema.pre("save", async function(next){
+    if (this.isModified("password")){
+        console.log(this.password);
+        this.password = await bcrypt.hash(this.password, 10);
+        console.log(this.password);
+
+    }
+    next();
+    
+})
+
+const User = mongoose.model('User', userSchema);
 module.exports = User;

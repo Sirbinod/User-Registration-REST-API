@@ -1,16 +1,29 @@
-const mongoose = require('mongoose');
 const User = require('../models/userModel');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-module.exports.register = async(req, res, next) =>{
+// const User = mongoose.model('User');
+const register = async(req, res, next) =>{
     try{
-        const user = new User(req.body);
-        user.firstname = req.body.firstname;
-        user.lastname = req.body.lastname;
-        user.email = req.body.email;
-        user.phone = req.body.phone;
-        user.password = req.body.password;
+        // bcrypt.hash(req.body.password, 10, (err, hassedPass)=>{
+        //     if (err){
+        //         res.json({
+        //             error: err
+        //         })
+        //     }
+
+        const user = new User (req.body);
         const createUser = await user.save();
-        res.status(200).send(createUser);
-        console.log('createUser');
-    }catch(err){res.status(500).send(err);}    
+        res,status(201).send(createUser);
+    }catch(err){
+        res.status(400).send(err);
+        console.log(err);
+    }
+   
+  
+}
+
+    
+module.exports = {
+    register
 }
